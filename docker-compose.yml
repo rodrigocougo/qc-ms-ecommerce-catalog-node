@@ -1,0 +1,33 @@
+version: "3.1"
+services:
+  db:
+    image: mongo:4.2
+    container_name: db-catalog-node
+    restart: always
+    command: mongod --port 27018
+    ports:
+      - ${DB_PORT}:27018
+    environment:
+      MONGO_INITDB_DATABASE: ${DB_NAME}
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
+
+  api:
+    image: node:latest
+    container_name: api-catalog-node
+    restart: always
+    env_file:
+     - .env
+    depends_on:
+      - db
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - .:/usr/src/app/qc-ms-ecommerce-catalog-node
+    working_dir: /usr/src/app/qc-ms-ecommerce-catalog-node
+    command: yarn start
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
